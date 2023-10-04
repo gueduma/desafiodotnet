@@ -12,12 +12,4 @@ public class Repository
 
         return 1;
     }
-
-	public int Update(Ordem ordem)
-	{
-		ordensPersistidas.RemoveAll(x => x.OrderID == ordem.OrderID);
-		ordensPersistidas.Add(ordem);
-
-		return 1;
-	}
 }

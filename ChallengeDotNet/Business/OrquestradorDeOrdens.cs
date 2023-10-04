@@ -2,9 +2,11 @@
 using System.Collections.Concurrent;
 using ChallengeDotNet.Repositories;
 using ChallengeDotNet.Domain;
+using System.Runtime.Intrinsics.Arm;
 
 namespace ChallengeDotNet.Business
 {
+
     public class OrquestradorDeOrdens
     {
 
@@ -20,7 +22,6 @@ namespace ChallengeDotNet.Business
             _repository = new Repository();
 
             PopulateOrdersAndUsers();
-            PopulateRequests();
 
             Console.WriteLine("Done");
         }
@@ -31,7 +32,7 @@ namespace ChallengeDotNet.Business
                 ValidateOrder(requisicaoDeOrdem);
         }
 
-        public static bool ValidateOrder(Ordem orderRequest)
+        public static bool? ValidateOrder(Ordem orderRequest)
         {
             Ordem o;
             User u;
@@ -42,42 +43,23 @@ namespace ChallengeDotNet.Business
                 {
                     o = OrdensEmMemoria.FindAll(o => o.OrderID == orderRequest.OrderID).FirstOrDefault();
 
-                    u = Usuarios.FindAll(u => u.UserID == o?.UserID).FirstOrDefault();
+                    u = Usuarios.FindAll(u => u.UserID == orderRequest?.UserID).FirstOrDefault();
 
                     if (u?.Active == true && o != null)
                     {
-                        Clone(orderRequest, o);
-                        AtualizarOrdem(orderRequest);
+                        Console.WriteLine("Ordem já existente!");
+                        // Atualiza na memória e no banco
 
                     } else if (u?.Active == true && o == null) {
-                        OrdensEmMemoria.Add(orderRequest);
-						PersistirOrdem(orderRequest);
-                    }
+						Console.WriteLine("Ordem nova!");
+
+						OrdensEmMemoria.Add(orderRequest);
+						_repository.Save(o);
+					}
 				}
             }
 
-            return u.Active;
-        }
-
-        private static void Clone(Ordem orderRequest, Ordem inMemory)
-        {
-            // Clona propriedades do orderRequest para o inMemory
-        }
-
-        private static void AtualizarOrdem(Ordem ordem)
-        {
-            _repository.Update(ordem);
-        }
-
-		private static void PersistirOrdem(Ordem ordem)
-		{
-			_repository.Save(ordem);
-		}
-
-		public static void PopulateRequests()
-        {
-            foreach (var order in OrdensEmMemoria)
-                RequisicaoDeOrdem.Enqueue(new Ordem() { OrderID = order.OrderID });
+            return u?.Active;
         }
 
         public static void PopulateOrdersAndUsers()
@@ -85,9 +67,9 @@ namespace ChallengeDotNet.Business
             for (var i = 1; i <= 100000; i++)
             {
                 var order = new Ordem() { OrderID = i, Symbol = "PETR" + i % 10, UserID = i };
-                var user = new User() { UserID = i, Name = "User" + i };
+                var user = new User() { UserID = i, Name = "User" + i, Active = true };
 
-                OrdensEmMemoria.Add(order);
+				RequisicaoDeOrdem.Enqueue(order);
                 Usuarios.Add(user);
             }
         }
