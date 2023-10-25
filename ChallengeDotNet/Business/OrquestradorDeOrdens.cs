@@ -62,16 +62,5 @@ namespace ChallengeDotNet.Business
             return u?.Active;
         }
 
-        public static void PopulateOrdersAndUsers()
-        {
-            for (var i = 1; i <= 100000; i++)
-            {
-                var order = new Ordem() { OrderID = i, Symbol = "PETR" + i % 10, UserID = i };
-                var user = new User() { UserID = i, Name = "User" + i, Active = true };
-
-				RequisicaoDeOrdem.Enqueue(order);
-                Usuarios.Add(user);
-            }
-        }
     }
 }
