@@ -48,15 +48,16 @@ namespace ChallengeDotNet.Business
                     if (u?.Active == true && o != null)
                     {
                         Console.WriteLine("Ordem já existente!");
-                        // Atualiza na memória e no banco
+                        // Atualiza ordem  já existente na memória e no banco
 
                     } else if (u?.Active == true && o == null) {
-						Console.WriteLine("Ordem nova!");
+			Console.WriteLine("Ordem nova!");
 
-						OrdensEmMemoria.Add(orderRequest);
-						_repository.Save(o);
-					}
-				}
+			OrdensEmMemoria.Add(orderRequest);
+			_repository.Save(o);
+			// Cria ordem na memória e no banco
+		    }
+		}
             }
 
             return u?.Active;
