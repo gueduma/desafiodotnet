@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using ChallengeDotNet.Repositories;
 using ChallengeDotNet.Domain;
@@ -20,7 +20,7 @@ namespace ChallengeDotNet.Business
         public OrquestradorDeOrdens()
         {
             _repository = new Repository();
-
+            
             PopulateOrdersAndUsers();
 
             Console.WriteLine("Done");
@@ -30,6 +30,15 @@ namespace ChallengeDotNet.Business
         {
             while (RequisicaoDeOrdem.TryDequeue(out Ordem requisicaoDeOrdem))
                 ValidateOrder(requisicaoDeOrdem);
+        }
+
+        public void AddReqs()
+        {
+            while(true)
+            {
+                RequisicaoDeOrdem.Add(new Ordem());
+                Thread.Sleep(100);
+            }
         }
 
         public static bool? ValidateOrder(Ordem orderRequest)
@@ -51,17 +60,16 @@ namespace ChallengeDotNet.Business
                         // Atualiza ordem  já existente na memória e no banco
 
                     } else if (u?.Active == true && o == null) {
-			Console.WriteLine("Ordem nova!");
+                        Console.WriteLine("Ordem nova!");
 
-			OrdensEmMemoria.Add(orderRequest);
-			_repository.Save(o);
-			// Cria ordem na memória e no banco
-		    }
-		}
+                        OrdensEmMemoria.Add(orderRequest);
+                        _repository.Save(o);
+                        // Cria ordem na memória e no banco
+                    }
+                }
             }
 
             return u?.Active;
         }
-
     }
 }
